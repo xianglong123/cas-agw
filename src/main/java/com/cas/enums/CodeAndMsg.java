@@ -15,6 +15,7 @@ public enum CodeAndMsg {
     UNKNOWEXCEPTION(3000, "UNKNOWEXCEPTION"),
     VERIFYFAIL(4000, "验签失败"),
     SIGN_IS_BLANK(5000, "签名为空"),
+    SIGN_IS_ERROR(6000, "验签失败"),
     ;
 
     private int code;

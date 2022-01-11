@@ -2,6 +2,7 @@ package com.cas.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -18,7 +19,7 @@ import java.util.Date;
  * @version: V1.0
  * @review:
  */
-@Component
+//@Component
 public class MyLogGateWayFilter implements GlobalFilter, Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(MyLogGateWayFilter.class);

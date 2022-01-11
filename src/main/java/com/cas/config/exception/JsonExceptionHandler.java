@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
+import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -36,11 +37,12 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
 
     @Override
     protected Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
-        int code = HttpStatus.INTERNAL_SERVER_ERROR.value();
         Throwable error = super.getError(request);
+        int code = error instanceof BusinessException ? ((BusinessException) error).getException().getCode() : HttpStatus.INTERNAL_SERVER_ERROR.value();
 //        if(error instanceof NotFoundException) {
 //            code = HttpStatus.NOT_FOUND.value();
 //        }
+        code = HttpStatus.INTERNAL_SERVER_ERROR.value();
         return response(code, this.buildMessage(request, error));
     }
 
