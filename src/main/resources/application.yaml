@@ -1,0 +1,18 @@
+server:
+  port: 9528
+spring:
+  application:
+    name: cloudalibaba-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          lower-case-service-id: true
+          enabled: true # 开启从注册中心动态创建路由的功能，利用微服务名进行路由
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+
+
+
