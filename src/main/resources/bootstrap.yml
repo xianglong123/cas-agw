@@ -19,6 +19,12 @@ spring:
 #            - SetPath=/getName{hello}                            # 会将请求路径中的{helo}，替换成/getName{hello}, {hello}代表/api后续所有数据，路径会被强制替换成/getName, 配合 - Path=/api{hello} 使用
 #            - AddRequestParameter=uname, xainglong               # 添加参数
 #            - SetStatus=404                                      # 设置响应码为404，所有请求的响应都是404
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1    # 令牌桶每秒填充速率
+                redis-rate-limiter.burstCapacity: 2    # 令牌桶总容量
+                key-resolver: "#{@ipKeyResolver}"    # 使用 SpEL 表达式按名称引用 bean
+
         - id: sign
           uri: lb://nacos-payment-provider
           predicates:         # 断言
