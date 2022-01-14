@@ -16,7 +16,7 @@ spring:
 #            - RewritePath=/api-gateway(?<hello>/?.*), $\{hello}  # 地址从/api-gateway/** 替换成/**，其中{hello}类似正则的别名，好比$1
 #            - PrefixPath=/getName                                # 自动在请求路径前拼接 /getName,比如请求：?uname=123 转换后 /getName?uname=123
 #            - StripPrefix=2                                      # 已 '/' 为标示，截图路径作为替换后的路径，比如2， /123/456/getName?uname=123 -> /getName?uname=123
-#            - SetPath=/getName{hello}                            # 会将请求路径中的{helo}，替换成/getName{hello}, {hello}代表/api后续所有数据，路径会被强制替换成/getName, 配合 - Path=/api{hello} 使用
+#            - SetPath=/getName{hello}                            # 会将请求路径中的{hello}，替换成/getName{hello}, {hello}代表/api后续所有数据，路径会被强制替换成/getName, 配合 - Path=/api{hello} 使用
 #            - AddRequestParameter=uname, xainglong               # 添加参数
 #            - SetStatus=404                                      # 设置响应码为404，所有请求的响应都是404
             - name: RequestRateLimiter
@@ -30,3 +30,5 @@ spring:
           predicates:         # 断言
             - Path=/sign
             - Method=post
+          filters:
+            - IgnoreTestGlobalFilter=true

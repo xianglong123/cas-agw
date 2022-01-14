@@ -36,42 +36,46 @@ import static com.cas.utils.RSAUtils.SHA1withRSA;
 @Component
 public class SignFilter implements GlobalFilter, Ordered {
 
+    public static final String SIGN_GLOBAL_FILTER = "SIGN_GLOBAL_FILTER";
+
     @Autowired
     private AgwProperties agwProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-
-        if (request.getMethod() == HttpMethod.POST) {
-            AtomicReference<String> requestBody = new AtomicReference<>("");
-            RecorderServerHttpRequestDecorator requestDecorator = new RecorderServerHttpRequestDecorator(request);
-            Flux<DataBuffer> body = requestDecorator.getBody();
-            body.subscribe(buffer -> {
-                CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer());
-                requestBody.set(charBuffer.toString());
-            });
-            // 获取body参数
-            JSONObject jsonObject = JSONObject.parseObject(requestBody.get());
-            String json = jsonObject.toJSONString();
-            // todo2 做自己的校验
-            List<String> signs = requestDecorator.getHeaders().get("sign");
-            if (signs == null || signs.isEmpty()) {
-                throw new BusinessException(CodeAndMsg.SIGN_IS_BLANK);
-            } else {
-                try {
-                    boolean verify = RSAUtils.verify(RSAUtils.getPublicKey(agwProperties.getPublicKey()), json, signs.get(0), SHA1withRSA);
-                    if (!verify) {
+        if (exchange.getAttribute(SIGN_GLOBAL_FILTER) != null) {
+            return chain.filter(exchange);
+        } else {
+            ServerHttpRequest request = exchange.getRequest();
+            if (request.getMethod() == HttpMethod.POST) {
+                AtomicReference<String> requestBody = new AtomicReference<>("");
+                RecorderServerHttpRequestDecorator requestDecorator = new RecorderServerHttpRequestDecorator(request);
+                Flux<DataBuffer> body = requestDecorator.getBody();
+                body.subscribe(buffer -> {
+                    CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer());
+                    requestBody.set(charBuffer.toString());
+                });
+                // 获取body参数
+                JSONObject jsonObject = JSONObject.parseObject(requestBody.get());
+                String json = jsonObject.toJSONString();
+                // todo2 做自己的校验
+                List<String> signs = requestDecorator.getHeaders().get("sign");
+                if (signs == null || signs.isEmpty()) {
+                    throw new BusinessException(CodeAndMsg.SIGN_IS_BLANK);
+                } else {
+                    try {
+                        boolean verify = RSAUtils.verify(RSAUtils.getPublicKey(agwProperties.getPublicKey()), json, signs.get(0), SHA1withRSA);
+                        if (!verify) {
+                            throw new BusinessException(CodeAndMsg.SIGN_IS_ERROR);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         throw new BusinessException(CodeAndMsg.SIGN_IS_ERROR);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new BusinessException(CodeAndMsg.SIGN_IS_ERROR);
                 }
             }
+            return chain.filter(exchange);
         }
-
-        return chain.filter(exchange);
     }
 
 
@@ -105,6 +109,6 @@ public class SignFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -2;
+        return 10;
     }
 }
