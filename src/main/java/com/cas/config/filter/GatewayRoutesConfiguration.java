@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2022/1/11 4:57 下午
  * @desc 自定义过滤器配置类：如果现有过滤器不能满足自己，可以自己做骚操作
  */
-//@Configuration
+@Configuration
 public class GatewayRoutesConfiguration {
 
     @Bean
